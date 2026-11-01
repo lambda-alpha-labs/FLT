@@ -106,10 +106,26 @@ noncomputable instance WeierstrassCurve.galoisRepresentationSmul
 noncomputable instance WeierstrassCurve.galoisRepresentation
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     DistribMulAction (K ≃ₐ[k] K) (E⁄K).Point where
-      one_smul := sorry -- these should all be easy
-      mul_smul := sorry
-      smul_zero := sorry
-      smul_add := sorry
+      one_smul P := by
+        change WeierstrassCurve.Affine.Point.map ((1 : K ≃ₐ[k] K) : K →ₐ[k] K) P = P
+        rw [show ((1 : K ≃ₐ[k] K) : K →ₐ[k] K) = AlgHom.id k K from rfl]
+        exact DFunLike.congr_fun (WeierstrassCurve.Points.map_id E K) P
+      mul_smul g h P := by
+        change WeierstrassCurve.Affine.Point.map ((g * h : K ≃ₐ[k] K) : K →ₐ[k] K) P =
+          WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K)
+            (WeierstrassCurve.Affine.Point.map (h : K →ₐ[k] K) P)
+        rw [show ((g * h : K ≃ₐ[k] K) : K →ₐ[k] K) =
+          (g : K →ₐ[k] K).comp (h : K →ₐ[k] K) from rfl]
+        exact (DFunLike.congr_fun
+          (WeierstrassCurve.Points.map_comp E K K K (h : K →ₐ[k] K) (g : K →ₐ[k] K)) P).symm
+      smul_zero g := by
+        change WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) (0 : (E⁄K).Point) = 0
+        exact map_zero _
+      smul_add g P Q := by
+        change WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) (P + Q) =
+          WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) P +
+            WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K) Q
+        exact map_add _ _ _
 
 -- the next `sorry` is data but the only thing which should be missing is
 -- the continuity argument, which follows from the finiteness asserted above.
